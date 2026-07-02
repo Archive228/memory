@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
-# memory installer — Copyright (c) 2026 Archive228 MIT.
+# engram installer — Copyright (c) 2026 Archive228 MIT.
 # Install pattern adapted from thedotmack/claude-mem (Apache-2.0).
 set -euo pipefail
 
-REPO_TARBALL="https://codeload.github.com/Archive228/memory/tar.gz/refs/heads/main"
+REPO_TARBALL="https://codeload.github.com/Archive228/engram/tar.gz/refs/heads/main"
 FORCE="${FORCE:-0}"
 STAMP="$(date +%Y%m%d-%H%M%S)"
 
-say() { printf '[memory] %s\n' "$*"; }
-die() { printf '[memory] error: %s\n' "$*" >&2; exit 1; }
+say() { printf '[engram] %s\n' "$*"; }
+die() { printf '[engram] error: %s\n' "$*" >&2; exit 1; }
 
 # Preflight: required tools.
 command -v curl >/dev/null 2>&1 || die "curl is required"
@@ -22,15 +22,15 @@ if [ -d ".claude" ] && [ "$FORCE" != "1" ]; then
 fi
 
 # Fetch tarball into a temp dir.
-TMPDIR="$(mktemp -d 2>/dev/null || mktemp -d -t memory)"
+TMPDIR="$(mktemp -d 2>/dev/null || mktemp -d -t engram)"
 trap 'rm -rf "$TMPDIR"' EXIT
 
-say "downloading memory main tarball"
-curl -fsSL "$REPO_TARBALL" -o "$TMPDIR/memory.tar.gz" || die "download failed"
+say "downloading engram main tarball"
+curl -fsSL "$REPO_TARBALL" -o "$TMPDIR/engram.tar.gz" || die "download failed"
 
 say "extracting"
-tar -xzf "$TMPDIR/memory.tar.gz" -C "$TMPDIR"
-SRC="$(find "$TMPDIR" -maxdepth 1 -type d -name 'memory-*' | head -n1)"
+tar -xzf "$TMPDIR/engram.tar.gz" -C "$TMPDIR"
+SRC="$(find "$TMPDIR" -maxdepth 1 -type d -name 'engram-*' | head -n1)"
 [ -n "$SRC" ] || die "extracted source dir not found"
 
 # Copy MEMORY.md to project root only if absent.
@@ -56,21 +56,20 @@ if [ -f "$SRC/dreaming.sh" ]; then
   cp "$SRC/dreaming.sh" "dreaming.sh"
 fi
 
-# Merge settings.json — prefer jq, fall back to append-with-warning.
+# Handle settings.json. If DST doesn't exist, copy in place. If it exists
+# and is byte-identical to SRC, skip (idempotent). Otherwise, drop SRC
+# beside as .claude/settings.memory.json for manual review — we never
+# overwrite an existing user settings file.
 SRC_SETTINGS="$SRC/.claude/settings.json"
 DST_SETTINGS=".claude/settings.json"
 if [ -f "$SRC_SETTINGS" ]; then
   if [ ! -f "$DST_SETTINGS" ]; then
     say "installing .claude/settings.json"
     cp "$SRC_SETTINGS" "$DST_SETTINGS"
-  elif command -v jq >/dev/null 2>&1; then
-    say "merging hooks into existing .claude/settings.json via jq"
-    TMP_MERGED="$(mktemp)"
-    jq -s '.[0] * {hooks: (.[0].hooks // {}) * (.[1].hooks // {})}' \
-       "$DST_SETTINGS" "$SRC_SETTINGS" > "$TMP_MERGED"
-    mv "$TMP_MERGED" "$DST_SETTINGS"
+  elif cmp -s "$SRC_SETTINGS" "$DST_SETTINGS"; then
+    say ".claude/settings.json already matches — no change"
   else
-    say "jq not found — writing memory settings alongside existing file for manual review"
+    say "existing .claude/settings.json differs — writing ours alongside as settings.memory.json for review"
     cp "$SRC_SETTINGS" ".claude/settings.memory.json"
     say "review .claude/settings.memory.json and merge its 'hooks' block into .claude/settings.json"
   fi
