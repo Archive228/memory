@@ -1,0 +1,81 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install shellcheck
+        run: |
+          if [ "$RUNNER_OS" = "Linux" ]; then
+            sudo apt-get update && sudo apt-get install -y shellcheck
+          else
+            brew install shellcheck
+          fi
+
+      - name: Run shellcheck (errors only)
+        run: shellcheck -S error install.sh dreaming.sh .claude/hooks/*.sh
+
+      - name: Bash syntax check
+        run: |
+          bash -n install.sh
+          bash -n dreaming.sh
+          bash -n .claude/hooks/*.sh
+
+      - name: Smoke test install
+        run: |
+          TEST_DIR=$(mktemp -d)
+          cd "$TEST_DIR"
+          bash "$GITHUB_WORKSPACE/install.sh"
+          echo "TEST_DIR=$TEST_DIR" >> "$GITHUB_ENV"
+
+      - name: Verify expected files
+        run: |
+          cd "$TEST_DIR"
+          expected=(
+            "MEMORY.md"
+            "dreaming.sh"
+            ".claude/settings.json"
+            ".claude/memory/index.md"
+            ".claude/skills/remember/SKILL.md"
+            ".claude/skills/recall-graph/SKILL.md"
+            ".claude/agents/consolidator.md"
+            ".claude/agents/dreamer.md"
+            ".claude/hooks/session-start.sh"
+            ".claude/hooks/session-end.sh"
+            ".claude/hooks/pre-compact.sh"
+          )
+          missing=0
+          for f in "${expected[@]}"; do
+            if [ ! -e "$f" ]; then
+              echo "MISSING: $f"
+              missing=1
+            else
+              echo "OK: $f"
+            fi
+          done
+          if [ "$missing" = "1" ]; then exit 1; fi
+
+      - name: Test idempotency (second install creates backup)
+        run: |
+          cd "$TEST_DIR"
+          bash "$GITHUB_WORKSPACE/install.sh"
+          if ls -d .claude.bak-* >/dev/null 2>&1; then
+            echo "backup created:"
+            ls -d .claude.bak-*
+          else
+            echo "expected .claude.bak-<ts>/ after second install"
+            exit 1
+          fi
