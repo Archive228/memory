@@ -24,5 +24,5 @@ Initial release.
 - `dreaming.sh`: manual dreamer trigger plus a suggested crontab entry.
 - Attribution to [thedotmack/claude-mem](https://github.com/thedotmack/claude-mem) (Apache-2.0), [modelcontextprotocol/servers](https://github.com/modelcontextprotocol/servers) (MIT), and [anthropics/skills](https://github.com/anthropics/skills) (concept).
 
-[Unreleased]: https://github.com/Archive228/engram/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/Archive228/engram/releases/tag/v0.1.0
+[Unreleased]: https://github.com/Archive228/memory/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/Archive228/memory/releases/tag/v0.1.0

@@ -1,5 +1,5 @@
 <!--
-  MEMORY.md — engram shift-notes for long-running Claude Code sessions.
+  MEMORY.md — memory shift-notes for long-running Claude Code sessions.
 
   Schema: four fixed sections (What's done / In progress / What's next /
   Notes for next session). Source: Justin Young, "Effective Harnesses for

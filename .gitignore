@@ -21,6 +21,6 @@ node_modules/
 # Logs
 *.log
 
-# engram-specific
+# memory-specific
 .claude.bak-*/
 .claude/memory/_dream.log

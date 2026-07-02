@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# engram session-start hook. Fires on SessionStart. See docs.claude.com for hook API.
+# memory session-start hook. Fires on SessionStart. See docs.claude.com for hook API.
 #
 # Injects persistent project memory (MEMORY.md + topic index) into the session
 # context as a system reminder so Claude has shift-notes before the first user turn.

@@ -1,21 +1,21 @@
-# engram
+# memory
 
 > The memory system Anthropic engineers describe publicly, packaged as a drop-in `.claude/`.
 
-[![CI](https://github.com/Archive228/engram/actions/workflows/ci.yml/badge.svg)](https://github.com/Archive228/engram/actions/workflows/ci.yml)
+[![CI](https://github.com/Archive228/memory/actions/workflows/ci.yml/badge.svg)](https://github.com/Archive228/memory/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Stars](https://img.shields.io/github/stars/Archive228/engram?style=social)](https://github.com/Archive228/engram/stargazers)
+[![Stars](https://img.shields.io/github/stars/Archive228/memory?style=social)](https://github.com/Archive228/memory/stargazers)
 [![Compatible with Claude Code](https://img.shields.io/badge/works%20with-Claude%20Code-CC785C?logo=anthropic&logoColor=white)](https://docs.claude.com/en/docs/claude-code)
-[![Install size](https://img.shields.io/badge/install-%3C%2050KB-brightgreen)](https://github.com/Archive228/engram)
+[![Install size](https://img.shields.io/badge/install-%3C%2050KB-brightgreen)](https://github.com/Archive228/memory)
 
 Claude Code sessions are stateless. Every new session opens with zero memory of the last one — no idea which files you touched yesterday, which decisions you made last week, or which dead ends you already ruled out. The workaround most people reach for is to paste context at the top of every conversation, which is slow, lossy, and gets worse the longer the project runs.
 
-engram is that package: a tiny, opinionated `.claude/` overlay that gives Claude Code a durable memory layer. It writes shift-notes at the end of each session, indexes them by topic, and forces the next session to read the index before it does anything else. It is the pattern Anthropic engineers describe when they talk about long-running agent harnesses, distilled into a drop-in you can install in one command.
+memory is that package: a tiny, opinionated `.claude/` overlay that gives Claude Code a durable memory layer. It writes shift-notes at the end of each session, indexes them by topic, and forces the next session to read the index before it does anything else. It is the pattern Anthropic engineers describe when they talk about long-running agent harnesses, distilled into a drop-in you can install in one command.
 
 ## Install
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Archive228/engram/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/Archive228/memory/main/install.sh | bash
 ```
 
 Run this from the root of any project directory. The installer drops a `.claude/` folder into the current directory, seeds an empty `MEMORY.md`, and wires up the two hooks that keep it fresh. It touches nothing outside `.claude/` and is safe to re-run — subsequent installs upgrade the harness in place without clobbering your notes.
@@ -26,17 +26,17 @@ If you prefer to see what you're running before you run it, the installer is ~80
 
 1. Open Claude Code in your project directory.
 2. Ask: *"what do you know about my project?"*
-3. If Claude starts by reading `MEMORY.md` before answering — engram is live.
+3. If Claude starts by reading `MEMORY.md` before answering — memory is live.
 
 If the first thing you see in the tool trace is a `Read` call against `.claude/projects/<your-project>/memory/MEMORY.md`, the hooks are wired correctly. If Claude answers from a blank slate instead, re-run the installer and check that `.claude/settings.json` was written.
 
 ## What it does
 
-engram gives Claude Code three things it does not have out of the box:
+memory gives Claude Code three things it does not have out of the box:
 
 - **A memory index that the model is required to consult.** Every session begins by reading `MEMORY.md`, which is a table of contents pointing at per-topic notes. The read is enforced by a `SessionStart` hook, not by hoping the model remembers to look.
 - **A structured end-of-session write.** When a session ends, a `Stop` hook prompts the model to append or update the relevant memory file with what it learned, what it changed, and what the next session should pick up. The write is scoped to a single topic so files stay small and greppable.
-- **A shift-notes discipline for multi-session projects.** For long-running work (anything past ~4 sessions), engram adds a `claude-progress.txt` convention that captures per-session state — what was done, what's in progress, what's next. This is the pattern that keeps agent runs from collapsing into "looks shipped, isn't shipped" failures on hour six.
+- **A shift-notes discipline for multi-session projects.** For long-running work (anything past ~4 sessions), memory adds a `claude-progress.txt` convention that captures per-session state — what was done, what's in progress, what's next. This is the pattern that keeps agent runs from collapsing into "looks shipped, isn't shipped" failures on hour six.
 
 That's the whole product. There is no server, no daemon, no vector database, no background sync. Memory is a directory of plain files that the model reads and writes on schedule.
 
@@ -77,13 +77,13 @@ This design has three properties that turn out to matter:
 2. **Writes are cheap and local.** Each update is one small file, edited in place. There is no batch job, no rebuild, no reindex. Adding a fact is a one-line diff.
 3. **Reads are cheap and lazy.** `MEMORY.md` is small by construction (one line per topic, ~1KB even after months of use). Topic files are only opened when the model decides the topic is relevant.
 
-The consolidate-memory skill runs on demand and does the housekeeping the model tends to skip: merging duplicate entries, fixing stale facts when the same topic has been updated inconsistently across sessions, pruning topics the model hasn't touched in a long time. Run it every few weeks. It is not required for engram to work, but it keeps the index tidy.
+The consolidate-memory skill runs on demand and does the housekeeping the model tends to skip: merging duplicate entries, fixing stale facts when the same topic has been updated inconsistently across sessions, pruning topics the model hasn't touched in a long time. Run it every few weeks. It is not required for memory to work, but it keeps the index tidy.
 
 ## Prior art & receipts
 
-The pattern engram implements is not novel. It is what Anthropic engineers describe when they talk about long-running agent harnesses in public — most concretely in the November 2025 post on the initializer/coding-agent split, and the March 2026 post on planner/generator/evaluator harnesses. Both posts describe a discipline of writing shift-notes at end of session and reading them at start of session, so that a fresh context window can pick up work without losing continuity.
+The pattern memory implements is not novel. It is what Anthropic engineers describe when they talk about long-running agent harnesses in public — most concretely in the November 2025 post on the initializer/coding-agent split, and the March 2026 post on planner/generator/evaluator harnesses. Both posts describe a discipline of writing shift-notes at end of session and reading them at start of session, so that a fresh context window can pick up work without losing continuity.
 
-engram is that pattern, minus the multi-agent orchestration, packaged so that a single-agent Claude Code session gets the durable-memory half of the win with zero setup. If you are running the full initializer + coding-agent split (recommended for projects that will run more than a day of agent time), engram plays nicely with it: the initializer agent writes the first `MEMORY.md`, and every coding-agent session updates it.
+memory is that pattern, minus the multi-agent orchestration, packaged so that a single-agent Claude Code session gets the durable-memory half of the win with zero setup. If you are running the full initializer + coding-agent split (recommended for projects that will run more than a day of agent time), memory plays nicely with it: the initializer agent writes the first `MEMORY.md`, and every coding-agent session updates it.
 
 Receipts and further reading:
 
@@ -92,13 +92,13 @@ Receipts and further reading:
 - The public `SessionStart` and `Stop` hook documentation in the Claude Code docs.
 - The Claude Code system-prompt behavior around `# claudeMd` system reminders.
 
-engram is a straightforward reading of these — nothing here is proprietary or reverse-engineered. If you have read the posts and set up the hooks yourself, you have already built engram. This package just saves you the twenty minutes.
+memory is a straightforward reading of these — nothing here is proprietary or reverse-engineered. If you have read the posts and set up the hooks yourself, you have already built memory. This package just saves you the twenty minutes.
 
 ## Attribution
 
-engram was built by [Archive228](https://github.com/Archive228) and takes design cues from the harness patterns Anthropic engineers describe publicly. It is a companion to [loopkit](https://github.com/Archive228/loopkit), the same author's drop-in `.claude/` harness for skills — where loopkit gives you a skill library, engram gives you a memory. They are independent and can be installed together.
+memory was built by [Archive228](https://github.com/Archive228) and takes design cues from the harness patterns Anthropic engineers describe publicly. It is a companion to [loopkit](https://github.com/Archive228/loopkit), the same author's drop-in `.claude/` harness for skills — where loopkit gives you a skill library, memory gives you a memory. They are independent and can be installed together.
 
-The name is a nod to the neuroscience term: an engram is the physical trace a memory leaves in a brain. Same idea here — the memory has to live somewhere durable, not just in a context window that will be gone by tomorrow.
+The name is a nod to the neuroscience term: an memory is the physical trace a memory leaves in a brain. Same idea here — the memory has to live somewhere durable, not just in a context window that will be gone by tomorrow.
 
 ## Uninstall
 
@@ -108,7 +108,7 @@ rm -rf .claude/
 
 That's it. There is nothing outside `.claude/` to clean up — no global config file, no daemon to stop, no cron entry to remove. The installer is deliberately non-invasive so that uninstall is a one-line `rm`.
 
-If you want to keep the memory files but disable the hooks (for example, to hand the project off to someone not running engram), delete `.claude/settings.json` and leave the rest. The memory files are just Markdown; they are useful to a human reader on their own.
+If you want to keep the memory files but disable the hooks (for example, to hand the project off to someone not running memory), delete `.claude/settings.json` and leave the rest. The memory files are just Markdown; they are useful to a human reader on their own.
 
 ## Roadmap
 
@@ -122,18 +122,18 @@ If any of these are load-bearing for your use case, open an issue with the detai
 
 ## Contributing
 
-engram is small on purpose, and it should stay small. The bar for adding anything is: does it make the memory layer more reliable, or does it just make it more featureful? The former is welcome; the latter is not.
+memory is small on purpose, and it should stay small. The bar for adding anything is: does it make the memory layer more reliable, or does it just make it more featureful? The former is welcome; the latter is not.
 
 That said, real contributions are welcome:
 
 - **Bug reports** are especially valuable. If the SessionStart hook doesn't fire on your platform, or the Stop hook writes a malformed edit, please open an issue with the Claude Code version and OS you're on. The hooks live in `.claude/settings.json` and are easy to debug against.
 - **Documentation improvements** — if you got tripped up on install, or a section of this README confused you, the fix is a pull request against this file.
-- **Prior-art additions.** If you know of a public write-up of the same pattern that isn't listed above, send it in. engram is meant to be a distillation of a public idea, and the receipts section should be complete.
+- **Prior-art additions.** If you know of a public write-up of the same pattern that isn't listed above, send it in. memory is meant to be a distillation of a public idea, and the receipts section should be complete.
 
 Not looking for:
 
 - New topic-file formats. Plain Markdown is the point.
-- Cloud sync, hosted mode, or anything that turns engram into a service. If you want that, fork it.
+- Cloud sync, hosted mode, or anything that turns memory into a service. If you want that, fork it.
 - Additional hooks beyond SessionStart and Stop. The two-hook design is deliberate — more hooks would add more surface area for the model to work around.
 
 Development setup: clone the repo, edit the installer or the templates under `templates/`, then run `./install.sh` into a scratch directory to test. There is a small CI check that lints `settings.json` and runs a smoke test against a stubbed Claude Code binary. See `.github/workflows/ci.yml` for the exact steps.

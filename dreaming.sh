@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# engram dreaming.sh — trigger the dreamer subagent to consolidate topic files into MEMORY.md notes.
+# memory dreaming.sh — trigger the dreamer subagent to consolidate topic files into MEMORY.md notes.
 #
 # Runs the overnight dreamer agent (see .claude/agents/dreamer.md) which reads
 # append-only topic files under .claude/memory/topics/, promotes durable facts
@@ -25,7 +25,7 @@ fi
 DREAMER_AGENT=".claude/agents/dreamer.md"
 if [[ ! -f "$DREAMER_AGENT" ]]; then
   echo "error: dreamer agent not found at $DREAMER_AGENT" >&2
-  echo "re-run install.sh or restore the engram .claude/ tree." >&2
+  echo "re-run install.sh or restore the memory .claude/ tree." >&2
   exit 1
 fi
 

@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: report a bug in engram
+about: report a bug in memory
 title: '[BUG] '
 labels: bug
 ---
@@ -21,7 +21,7 @@ A clear and concise description of what you expected to happen instead.
 - OS + version (e.g. macOS 14.5, Ubuntu 22.04):
 - Shell (bash/zsh):
 - Claude Code version (`claude --version`):
-- engram version (commit SHA or tag):
+- memory version (commit SHA or tag):
 
 **install.sh output**
 Paste the full output of `./install.sh` below:
@@ -31,7 +31,7 @@ Paste the full output of `./install.sh` below:
 ```
 
 **Relevant hooks/skills involved**
-List which engram hooks or skills were active when the bug occurred:
+List which memory hooks or skills were active when the bug occurred:
 -
 -
 

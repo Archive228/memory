@@ -1,6 +1,6 @@
 ---
 name: Feature request
-about: suggest a feature for engram
+about: suggest a feature for memory
 title: '[FEATURE] '
 labels: enhancement
 ---
@@ -19,7 +19,7 @@ What else did you think about? Workarounds you tried, other tools that solve thi
 
 ## Scope check
 
-Is this within engram's mission — a **memory pattern for Claude Code**, not a general-purpose agent framework? Explain how the request fits that scope. Requests that would turn engram into a broader framework, orchestrator, or model-agnostic library are likely out of scope and better suited to a fork or a sibling project.
+Is this within memory's mission — a **memory pattern for Claude Code**, not a general-purpose agent framework? Explain how the request fits that scope. Requests that would turn memory into a broader framework, orchestrator, or model-agnostic library are likely out of scope and better suited to a fork or a sibling project.
 
 ## Attribution
 

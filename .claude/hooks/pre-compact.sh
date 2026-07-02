@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# engram PreCompact hook — snapshot before context compaction so consolidator can absorb the tail.
+# memory PreCompact hook — snapshot before context compaction so consolidator can absorb the tail.
 set -euo pipefail
 
 # Resolve project root (this file lives at .claude/hooks/pre-compact.sh).
@@ -37,4 +37,4 @@ SNAPSHOT="$TOPICS_DIR/_precompact-$TS.md"
   fi
 } > "$SNAPSHOT"
 
-echo "engram: pre-compact snapshot written to $SNAPSHOT" >&2
+echo "memory: pre-compact snapshot written to $SNAPSHOT" >&2
